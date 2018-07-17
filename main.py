@@ -80,7 +80,7 @@ class today(tk.Frame):
         label = tk.Label(self, text="Today's Progress")
         label.pack(pady=10, padx=10)
 
-        self.current_label = tk.Label(self,text="The current hour is (24 hour layout):")
+        self.current_label = tk.Label(self,text="The current hour is (24hr layout):")
         self.current_label.pack()
         variable = datetime.now().strftime('%H:00')
         self.current_hour = tk.Label(self,text=variable)
