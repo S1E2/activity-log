@@ -17,7 +17,7 @@ class base(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, HomeScreen, today, weekly, bulk):
+        for F in (StartPage, HomeScreen, today, bulk):
             frame = F(container, self)
 
             self.frames[F] = frame
@@ -69,9 +69,6 @@ class HomeScreen(tk.Frame):
         self.today_label = tk.Button(self,text="Today", command=lambda: self.controller.show_frame(today))
         self.today_label.pack()
 
-        self.week_label = tk.Button(self,text="Weekly", command=lambda: self.controller.show_frame(weekly))
-        self.week_label.pack()
-
 class today(tk.Frame):
 
     def __init__(self, parent, controller):
@@ -108,18 +105,6 @@ class bulk(tk.Frame):
 
         self.back_today = tk.Button(self, text="Go back", command=lambda: self.controller.show_frame(today))
         self.back_today.pack()
-
-class weekly(tk.Frame):
-
-    def __init__(self, parent, controller):
-        self.controller = controller
-        tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Weekly Progress")
-        label.pack(pady=10, padx=10)
-
-        self.back_homescreen = tk.Button(self, text="Go back", command=lambda: self.controller.show_frame(HomeScreen))
-        self.back_homescreen.pack()
-
 
 app = base()
 app.mainloop()
