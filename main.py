@@ -113,6 +113,9 @@ class HomeScreen(StartPage):
         return self.first_date_count, self.last_date_count
 
     def date_status(self):
+        # this was made since the return (on line 113) ended up showing the frame of TodaySelect for some reason while
+        #  I was on the Today screen. I don't know if the solution is the best as the for loop gets executed again since
+        #  I needed to call the first and last date variables on line 187 (using '()' which calls it). Who knows.
         if self.first_status and self.last_status == 1:
             print("Good to go.")
             self.controller.show_frame(TodaySelect)
@@ -163,44 +166,58 @@ class Today(HomeScreen):
         self.question_label.pack()
 
         # insert type of work (from a list)
-        self.OPTIONS = ['Sleep', 'University/Self-study', 'Downtime', 'Examinations', 'Social', 'Exercise',
-                        'Productivity', 'Gaming', 'Preparation', 'Family', 'Travel', 'Unproductive', 'Paid Work',
-                        'Work Experience']
+        self.OPTIONS = ['Blank(0)', 'Sleep(1)', 'University/Self-study(2)', 'Downtime(3)', 'Examinations(4)',
+                        'Social(5)', 'Exercise(6)', 'Productivity(7)', 'Gaming(8)', 'Preparation(9)', 'Family(10)',
+                        'Travel(11)', 'Unproductive(12)', 'Paid Work(13)', 'Work Experience(14)']
 
         self.variable = tk.StringVar()
-        self.variable.set(self.OPTIONS[0])
+        self.variable.set(self.OPTIONS[7])
         self.type_work = tk.OptionMenu(self, self.variable, *self.OPTIONS)
         self.type_work.pack()
         self.submit_hour = tk.Button(self, text="Submit", command=self.append_hour)
         self.submit_hour.pack()
         self.back_home = tk.Button(self, text="Go back", command=lambda: self.controller.show_frame(TodaySelect))
         self.back_home.pack()
-        self.print_list = tk.Button(self, text="Print", command=self.append_hour)
-        self.print_list.pack()
         self.save_button = tk.Button(self, text="Save", command=self.save)
         self.save_button.pack()
 
     def append_hour(self):
-        print(self.program_list)
-        print(self.variable.get())
         self.first_date_count, self.last_date_count = self.date_check()
-        print("First date pos", self.first_date_count)
-        print("Last date pos", self.last_date_count)
-        for a, b in zip(self.program_list[self.first_date_count + 1:self.last_date_count],
-                        self.program_list[self.first_date_count + 2:self.last_date_count]):
-            print("A is:", a, "B is", b)
+        print("\nFirst date pos\n", self.first_date_count)
+        print("\nLast date pos\n", self.last_date_count)
 
-#
-# hour_we_are_looking_for = '10:00\n'
-#
-# for a, b in zip(dates[firstdate_count+1:lastdate_count], dates[firstdate_count+2:lastdate_count]):
-#     print ("A is:", a, "B is", b)
-#     if a == hour_we_are_looking_for:
-#         print("Found the hour we are looking for")
-#         break
-#     else:
-#         print("Not found")
+        # print("Drop-down variable is:", self.OPTIONS.tk.current())
 
+        for count, enum in enumerate(self.OPTIONS):
+            if enum == self.variable.get():
+                self.optioncount = count
+                break
+
+        # A temporary list is created as we cannot append to a specific index inside a slice. Temp list assumes that
+        #  all of its list contents are that of the contents between today's date markers
+        self.temporary_list = (self.program_list[self.first_date_count + 1:self.last_date_count])
+        print(self.temporary_list)
+
+        for count, enum in enumerate(self.temporary_list):
+            if enum == self.hour_time:
+                # the hour type next to the hour now equals the option (hour type) that the user clicked on
+                self.temporary_list[count+1] = ('%s\n' % self.optioncount)
+                print("Now includes the new appended hour", self.temporary_list)
+                break
+
+        # Deleting the contents of today's date in the main list in order to append the new temporary (updated) list.
+        del self.program_list[self.first_date_count + 1:self.last_date_count]
+
+        print("~~~")
+        print(self.temporary_list)
+
+        # Loop each index of the temporary list into the main list at the first date index
+        # for count, elem in enumerate(self.temporary_list):
+        #     self.program_list.insert(self.first_date_count + 1, elem)
+        # print("Current inserted layout", self.program_list)
+
+        # TODO: this loop is acting weird. Fix it.
 
 app = Base()
 app.mainloop()
+# self.program_list[self.first_date_count + 1:self.last_date_count].append('hi\n')
