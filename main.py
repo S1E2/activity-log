@@ -19,7 +19,7 @@ class Base(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, HomeScreen, Today, TodaySelect):
+        for F in (StartPage, HomeScreen, Today, Select, Bulk, ):
             frame = F(container, self)
 
             self.frames[F] = frame
@@ -118,7 +118,7 @@ class HomeScreen(StartPage):
         #  I needed to call the first and last date variables on line 187 (using '()' which calls it). Who knows.
         if self.first_status and self.last_status == 1:
             print("Good to go.")
-            self.controller.show_frame(TodaySelect)
+            self.controller.show_frame(Select)
 
     def restart_save(self):
         self.save()
@@ -132,7 +132,7 @@ class HomeScreen(StartPage):
         print(self.program_list)
 
 
-class TodaySelect(HomeScreen):
+class Select(HomeScreen):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -142,9 +142,8 @@ class TodaySelect(HomeScreen):
         self.current_button = tk.Button(self, text="Fill in the current hour",
                                         command=lambda: self.controller.show_frame(Today))
         self.current_button.pack()
-        self.single_button = tk.Button(self, text="Select a single hour (from today) and fill")
-        self.single_button.pack()
-        self.bulk_button = tk.Button(self, text="Bulk fill the hours of the day")
+        self.bulk_button = tk.Button(self, text="Bulk fill the hours of the day",
+                                     command=lambda: self.controller.show_frame(Bulk))
         self.bulk_button.pack()
 
 
@@ -176,21 +175,19 @@ class Today(HomeScreen):
         self.type_work.pack()
         self.submit_hour = tk.Button(self, text="Submit", command=self.append_hour)
         self.submit_hour.pack()
-        self.back_home = tk.Button(self, text="Go back", command=lambda: self.controller.show_frame(TodaySelect))
-        self.back_home.pack()
         self.save_button = tk.Button(self, text="Save", command=self.save)
         self.save_button.pack()
+        self.back_home = tk.Button(self, text="Go back", command=lambda: self.controller.show_frame(Select))
+        self.back_home.pack()
 
     def append_hour(self):
         self.first_date_count, self.last_date_count = self.date_check()
         print("\nFirst date pos\n", self.first_date_count)
         print("\nLast date pos\n", self.last_date_count)
 
-        # print("Drop-down variable is:", self.OPTIONS.tk.current())
-
         for count, enum in enumerate(self.OPTIONS):
             if enum == self.variable.get():
-                self.optioncount = count
+                self.optioncount = count    # keep the index of the hour type I clicked on to append later
                 break
 
         # A temporary list is created as we cannot append to a specific index inside a slice. Temp list assumes that
@@ -200,7 +197,8 @@ class Today(HomeScreen):
 
         for count, enum in enumerate(self.temporary_list):
             if enum == self.hour_time:
-                # the hour type next to the hour now equals the option (hour type) that the user clicked on
+                # the hour type next to the hour (in terms of index)
+                #  now equals the option (hour type) that the user clicked on
                 self.temporary_list[count+1] = ('%s\n' % self.optioncount)
                 print("Now includes the new appended hour", self.temporary_list)
                 break
@@ -208,16 +206,102 @@ class Today(HomeScreen):
         # Deleting the contents of today's date in the main list in order to append the new temporary (updated) list.
         del self.program_list[self.first_date_count + 1:self.last_date_count]
 
-        print("~~~")
-        print(self.temporary_list)
+        # The main list now equals the main list up to the point of the start marker for today's date,
+        # the contents of today's list and the rest of the main lists contents past the end marker (first date + 1).
+        self.program_list = self.program_list[:self.first_date_count + 1] + self.temporary_list + \
+            self.program_list[self.first_date_count+1:]
 
-        # Loop each index of the temporary list into the main list at the first date index
-        # for count, elem in enumerate(self.temporary_list):
-        #     self.program_list.insert(self.first_date_count + 1, elem)
-        # print("Current inserted layout", self.program_list)
 
-        # TODO: this loop is acting weird. Fix it.
+class Bulk(HomeScreen):
+
+    def __init__(self, parent, controller):
+        self.controller = controller
+        tk.Frame.__init__(self, parent)
+        self.label = tk.Label(self, text="Welcome to da bulk page. Useful for checking in your sleep hours")
+        self.label.pack()
+
+        self.label = tk.Label(self, text="Which hours do you wish to fill in?")
+        self.label.pack()
+
+        self.zerozerovar = tk.IntVar()
+        self.zeroonevar = tk.IntVar()
+        self.zerotwovar = tk.IntVar()
+        self.zerothreevar = tk.IntVar()
+        self.zerofourvar = tk.IntVar()
+        self.zerofivevar = tk.IntVar()
+        self.zerosixvar = tk.IntVar()
+        self.zerosevenvar = tk.IntVar()
+        self.zeroeightvar = tk.IntVar()
+        self.zeroninevar = tk.IntVar()
+        self.onezerovar = tk.IntVar()
+        self.oneonevar = tk.IntVar()
+        self.onetwovar = tk.IntVar()
+        self.onethreevar = tk.IntVar()
+        self.onefourvar = tk.IntVar()
+        self.onefivevar = tk.IntVar()
+        self.onesixvar = tk.IntVar()
+        self.onesevenvar = tk.IntVar()
+        self.oneeightvar = tk.IntVar()
+        self.oneninevar = tk.IntVar()
+        self.twozerovar = tk.IntVar()
+        self.twoonevar = tk.IntVar()
+        self.twotwovar = tk.IntVar()
+        self.twothreevar = tk.IntVar()
+
+        self.zerozero_check = tk.Checkbutton(self, text="00:00", variable=self.zerozerovar)
+        self.zerozero_check.pack()
+        self.zeroone_check = tk.Checkbutton(self, text="01:00", variable=self.zeroonevar)
+        self.zeroone_check.pack()
+        self.zerotwo_check = tk.Checkbutton(self, text="02:00", variable=self.zerotwovar)
+        self.zerotwo_check.pack()
+        self.zerothree_check = tk.Checkbutton(self, text="03:00", variable=self.zerothreevar)
+        self.zerothree_check.pack()
+        self.zerofour_check = tk.Checkbutton(self, text="04:00", variable=self.zerofourvar)
+        self.zerofour_check.pack()
+        self.zerofive_check = tk.Checkbutton(self, text="05:00", variable=self.zerofivevar)
+        self.zerofive_check.pack()
+        self.zerosix_check = tk.Checkbutton(self, text="06:00", variable=self.zerosixvar)
+        self.zerosix_check.pack()
+        self.zeroseven_check = tk.Checkbutton(self, text="07:00", variable=self.zerosevenvar)
+        self.zeroseven_check.pack()
+        self.zeroeight_check = tk.Checkbutton(self, text="08:00", variable=self.zeroeightvar)
+        self.zeroeight_check.pack()
+        self.zeronine_check = tk.Checkbutton(self, text="09:00", variable=self.zeroninevar)
+        self.zeronine_check.pack()
+        self.onezero_check = tk.Checkbutton(self, text="10:00", variable=self.onezerovar)
+        self.onezero_check.pack()
+        self.oneone_check = tk.Checkbutton(self, text="11:00", variable=self.oneonevar)
+        self.oneone_check.pack()
+        self.onetwo_check = tk.Checkbutton(self, text="12:00", variable=self.onetwovar)
+        self.onetwo_check.pack()
+        self.onethree_check = tk.Checkbutton(self, text="13:00", variable=self.onethreevar)
+        self.onethree_check.pack()
+        self.onefour_check = tk.Checkbutton(self, text="14:00", variable=self.onefourvar)
+        self.onefour_check.pack()
+        self.onefive_check = tk.Checkbutton(self, text="15:00", variable=self.onefivevar)
+        self.onefive_check.pack()
+        self.onesix_check = tk.Checkbutton(self, text="16:00", variable=self.onesixvar)
+        self.onesix_check.pack()
+        self.oneseven_check = tk.Checkbutton(self, text="17:00", variable=self.onesevenvar)
+        self.oneseven_check.pack()
+        self.oneeight_check = tk.Checkbutton(self, text="18:00", variable=self.oneeightvar)
+        self.oneeight_check.pack()
+        self.onenine_check = tk.Checkbutton(self, text="19:00", variable=self.oneninevar)
+        self.onenine_check.pack()
+        self.twozero_check = tk.Checkbutton(self, text="20:00", variable=self.twozerovar)
+        self.twozero_check.pack()
+        self.twoone_check = tk.Checkbutton(self, text="21:00", variable=self.twoonevar)
+        self.twoone_check.pack()
+        self.twotwo_check = tk.Checkbutton(self, text="22:00", variable=self.twotwovar)
+        self.twotwo_check.pack()
+        self.twothree_check = tk.Checkbutton(self, text="23:00", variable=self.twothreevar)
+        self.twothree_check.pack()
+
+        self.bulk_submit = tk.Button(self, text="Submit", command=self.bulk_append)
+        self.bulk_submit.pack()
+
+    def bulk_append(self):
+        print("!")
 
 app = Base()
 app.mainloop()
-# self.program_list[self.first_date_count + 1:self.last_date_count].append('hi\n')
